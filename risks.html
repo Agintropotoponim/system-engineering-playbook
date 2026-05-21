@@ -1,0 +1,608 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Риски - Городские обращения 24/7</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="src/_assets/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Городские обращения 24/7</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="Риски-системы-Городские-обращения-247"><a class="header" href="#Риски-системы-Городские-обращения-247">Риски системы «Городские обращения 24/7»</a></h1>
+<hr />
+<h2 id="Содержание"><a class="header" href="#Содержание">Содержание</a></h2>
+<ol>
+<li><a href="#1-%D1%88%D0%BA%D0%B0%D0%BB%D0%B0-%D0%BE%D1%86%D0%B5%D0%BD%D0%BA%D0%B8-%D1%80%D0%B8%D1%81%D0%BA%D0%BE%D0%B2">Шкала оценки рисков</a></li>
+<li><a href="#2-%D1%80%D0%B5%D0%B5%D1%81%D1%82%D1%80-%D1%80%D0%B8%D1%81%D0%BA%D0%BE%D0%B2">Реестр рисков</a></li>
+<li><a href="#3-%D1%80%D0%B0%D1%81%D0%BF%D1%80%D0%B5%D0%B4%D0%B5%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%BF%D1%80%D0%B8%D0%BE%D1%80%D0%B8%D1%82%D0%B5%D1%82%D0%BE%D0%B2">Распределение приоритетов</a></li>
+<li><a href="#4-%D0%B4%D0%B5%D1%82%D0%B0%D0%BB%D1%8C%D0%BD%D0%BE%D0%B5-%D0%BE%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BC%D0%B5%D1%80-%D1%80%D0%B5%D0%B0%D0%B3%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F">Детальное описание мер реагирования</a></li>
+<li><a href="#5-%D0%BA%D1%80%D0%B8%D1%82%D0%B5%D1%80%D0%B8%D0%B8-%D0%B3%D0%BE%D1%82%D0%BE%D0%B2%D0%BD%D0%BE%D1%81%D1%82%D0%B8-%D1%80%D0%B5%D0%B5%D1%81%D1%82%D1%80%D0%B0-%D1%80%D0%B8%D1%81%D0%BA%D0%BE%D0%B2">Критерии готовности реестра рисков</a></li>
+</ol>
+<hr />
+<h2 id="1-Шкала-оценки-рисков"><a class="header" href="#1-Шкала-оценки-рисков">1. Шкала оценки рисков</a></h2>
+<p>Для оценки рисков используется качественно-количественная шкала по двум параметрам: <strong>вероятность наступления риска</strong> (Risk Probability — R) и <strong>степень влияния на систему</strong> (Influence Degree — I). Каждый параметр оценивается по шкале от 1 до 3.</p>
+<h3 id="Вероятность-наступления-риска-risk-probability--r"><a class="header" href="#Вероятность-наступления-риска-risk-probability--r">Вероятность наступления риска (Risk Probability — R)</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Уровень</th><th>Балл</th><th>Описание</th></tr></thead><tbody>
+<tr><td>Низкая</td><td>1</td><td>Событие маловероятно и возникает только при редких сбоях, ошибках конфигурации или нестандартных условиях эксплуатации</td></tr>
+<tr><td>Средняя</td><td>2</td><td>Событие может возникать периодически: при высокой нагрузке, сбоях внешних интеграций, проблемах сети или ошибках пользователей</td></tr>
+<tr><td>Высокая</td><td>3</td><td>Событие ожидаемо в реальной эксплуатации и может регулярно возникать — особенно в периоды городских ЧС, погодных аварий или информационных кампаний</td></tr>
+</tbody></table>
+</div>
+<h3 id="Степень-влияния-на-систему-influence-degree--i"><a class="header" href="#Степень-влияния-на-систему-influence-degree--i">Степень влияния на систему (Influence Degree — I)</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Уровень</th><th>Балл</th><th>Описание</th></tr></thead><tbody>
+<tr><td>Низкая</td><td>1</td><td>Влияет на отдельного пользователя или отдельную некритичную функцию без серьёзных последствий для обработки обращений</td></tr>
+<tr><td>Средняя</td><td>2</td><td>Вызывает задержки обработки, рост обращений в поддержку, частичную недоступность функций или спорные ситуации</td></tr>
+<tr><td>Высокая</td><td>3</td><td>Может привести к потере обращений, остановке обработки, нарушению SLA, юридическим или репутационным последствиям для администрации города</td></tr>
+</tbody></table>
+</div>
+<h3 id="Расчёт-приоритета"><a class="header" href="#Расчёт-приоритета">Расчёт приоритета</a></h3>
+<p>Приоритет риска рассчитывается как произведение двух оценок:</p>
+<pre><code>P = R × I
+</code></pre>
+<h3 id="Интерпретация-приоритета"><a class="header" href="#Интерпретация-приоритета">Интерпретация приоритета</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Приоритет</th><th>Уровень риска</th><th>Порядок реагирования</th></tr></thead><tbody>
+<tr><td>1–2</td><td>Низкий</td><td>Принять риск, мониторить</td></tr>
+<tr><td>3–4</td><td>Средний</td><td>Реализовать меры снижения до запуска</td></tr>
+<tr><td>6</td><td>Высокий</td><td>Реализовать меры немедленно, эскалировать при невозможности</td></tr>
+<tr><td>9</td><td>Критический</td><td>Блокирующий — требует немедленного решения до запуска системы</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h2 id="2-Реестр-рисков"><a class="header" href="#2-Реестр-рисков">2. Реестр рисков</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>ID</th><th>Сценарий</th><th>Риск / событие</th><th>Причины</th><th>Последствия</th><th>R</th><th>I</th><th>P</th><th>Уровень</th><th>Меры реагирования</th><th>Владелец</th><th>Остаточный риск</th></tr></thead><tbody>
+<tr><td>R-01</td><td>1</td><td>Потеря обращения при отправке</td><td>Сбой backend, БД, сети или брокера сообщений</td><td>Обращение не зарегистрировано — гражданин считает, что заявка принята, но системой не зафиксирована</td><td>2</td><td>3</td><td><strong>6</strong></td><td>Высокий</td><td>Очередь сообщений (Kafka) с at-least-once delivery, retry с экспоненциальной задержкой, подтверждение сохранения через callback</td><td>Backend lead</td><td>Средний</td></tr>
+<tr><td>R-02</td><td>1</td><td>Некорректное определение геолокации</td><td>Ошибка GPS, отказ картографического API (Яндекс/2ГИС), нестабильная связь</td><td>Обращение направлено не в тот район или подрядчику, не ответственному за данную территорию</td><td>2</td><td>2</td><td><strong>4</strong></td><td>Средний</td><td>Ручной выбор точки на карте как fallback, валидация адреса через резервный картографический сервис, кэш результатов геокодирования в Redis</td><td>Backend lead</td><td>Низкий</td></tr>
+<tr><td>R-03</td><td>1</td><td>Массовая отправка спама или фейковых обращений</td><td>Боты, автоматизированные скрипты, отсутствие ограничений на частоту</td><td>Перегрузка операторов, искажение статистики, затруднение обработки реальных обращений</td><td>3</td><td>2</td><td><strong>6</strong></td><td>Высокий</td><td>Rate limiting на API-шлюзе, CAPTCHA при регистрации обращений, антиспам-проверка в Ticket Service, блокировка аномальных источников</td><td>Security lead</td><td>Средний</td></tr>
+<tr><td>R-04</td><td>1, 4</td><td>Система не обнаруживает дубликаты обращений</td><td>Ошибки алгоритма дедупликации, недостаточный радиус проверки координат, слабая семантическая схожесть текста</td><td>Рост числа одинаковых заявок, дублирующаяся нагрузка на подрядчиков, искажение аналитики</td><td>3</td><td>2</td><td><strong>6</strong></td><td>Высокий</td><td>Многоуровневая проверка: геолокация + категория + текст (эмбеддинги / расстояние Левенштейна), хранение индекса открытых обращений за 30 дней</td><td>Backend lead</td><td>Средний</td></tr>
+<tr><td>R-05</td><td>2</td><td>Обращение назначено неправильному подрядчику</td><td>Ошибка классификатора маршрутизации, пересечение зон ответственности, устаревший справочник подрядчиков</td><td>Задержка выполнения работ, перенаправление обращения вручную, недовольство гражданина</td><td>2</td><td>3</td><td><strong>6</strong></td><td>Высокий</td><td>Ручной возврат оператору через Manual Handling Service, аудит маршрутизации с фиксацией причины, переобучение классификатора на данных ручных коррекций</td><td>Backend lead + Оператор</td><td>Средний</td></tr>
+<tr><td>R-06</td><td>2</td><td>Сервис маршрутизации недоступен</td><td>Сбой Routing Service, перегрузка ML-модуля классификации</td><td>Остановка автоматического распределения, обращения накапливаются без назначения</td><td>2</td><td>3</td><td><strong>6</strong></td><td>Высокий</td><td>Автоматический fallback в очередь ручной обработки операторов, health-check Routing Service, алерт DevOps при недоступности</td><td>Backend lead</td><td>Средний</td></tr>
+<tr><td>R-07</td><td>3</td><td>Подрядчик не обновляет статус обращения</td><td>Человеческая ошибка, отсутствие мотивации, отсутствие напоминаний</td><td>Гражданин не получает актуальную информацию, накопление просроченных задач, нарушение SLA</td><td>3</td><td>2</td><td><strong>6</strong></td><td>Высокий</td><td>Автоматические напоминания (push/SMS) при приближении срока, SLA Monitor с эскалацией на оператора, публикация события <code>sla.warning</code> в Kafka</td><td>Оператор</td><td>Средний</td></tr>
+<tr><td>R-08</td><td>3</td><td>Подрядчик ошибочно закрывает обращение</td><td>Человеческая ошибка, спешка</td><td>Некорректное завершение работ, гражданин не доволен результатом</td><td>2</td><td>2</td><td><strong>4</strong></td><td>Средний</td><td>Обязательный фотоотчёт перед закрытием, возможность отката статуса оператором, аудит всех переходов статусов</td><td>Оператор + Администратор</td><td>Низкий</td></tr>
+<tr><td>R-09</td><td>3</td><td>Фотоотчёт подрядчика не загружается</td><td>Сбой Media Service или объектного хранилища, нестабильная сеть «в поле»</td><td>Нет подтверждения выполнения работ, невозможно верифицировать закрытие обращения</td><td>2</td><td>2</td><td><strong>4</strong></td><td>Средний</td><td>Локальное кэширование фото в приложении подрядчика с очередью синхронизации, повторные попытки загрузки при восстановлении связи</td><td>Backend lead</td><td>Низкий</td></tr>
+<tr><td>R-10</td><td>4</td><td>Конфликт при одновременной обработке обращения несколькими операторами</td><td>Несколько операторов открыли одну карточку, отсутствие блокировки</td><td>Потеря изменений, дублирование действий, некорректная маршрутизация</td><td>2</td><td>2</td><td><strong>4</strong></td><td>Средний</td><td>Пессимистическая блокировка в Manual Handling Service, отображение «кто сейчас работает с карточкой», автоматическое снятие блокировки по таймауту</td><td>Backend lead</td><td>Низкий</td></tr>
+<tr><td>R-11</td><td>4</td><td>Оператор отклоняет корректную заявку</td><td>Ошибка оператора, недостаточная квалификация</td><td>Потеря доверия гражданина, обращение не выполнено</td><td>2</td><td>2</td><td><strong>4</strong></td><td>Средний</td><td>Обязательное указание причины отклонения, аудит действий оператора, возможность повторной подачи обращения гражданином</td><td>Руководитель операторов</td><td>Низкий</td></tr>
+<tr><td>R-12</td><td>5</td><td>Аналитические отчёты содержат неполные или некорректные данные</td><td>Ошибка синхронизации, задержки в Kafka, сбой ETL-процесса</td><td>Неверные управленческие решения администрации города</td><td>2</td><td>3</td><td><strong>6</strong></td><td>Высокий</td><td>Валидация агрегатов перед публикацией, предупреждение об актуальности данных на дашборде, мониторинг lag в Kafka-топиках</td><td>Аналитик + Backend lead</td><td>Средний</td></tr>
+<tr><td>R-13</td><td>5</td><td>Аналитический модуль перегружен при генерации тяжёлых отчётов</td><td>Большой объём исторических данных, синхронная генерация</td><td>Замедление работы системы аналитики, блокировка оперативных операций</td><td>2</td><td>2</td><td><strong>4</strong></td><td>Средний</td><td>Асинхронная генерация отчётов с отправкой ссылки по завершении, кэширование популярных витрин в Redis, направление тяжёлых запросов на реплику БД</td><td>Backend lead</td><td>Низкий</td></tr>
+<tr><td>R-14</td><td>5</td><td>Картографический сервис недоступен</td><td>Сбой внешнего API (Яндекс.Карты, 2ГИС, OSM)</td><td>Невозможно отобразить карту проблемных зон в аналитическом модуле и в интерфейсе гражданина</td><td>2</td><td>2</td><td><strong>4</strong></td><td>Средний</td><td>Fallback на резервный картографический сервис, кэш тайлов карты в Redis, режим работы без карты с отображением только текстовых данных</td><td>Backend lead</td><td>Низкий</td></tr>
+<tr><td>R-15</td><td>Все</td><td>Утечка персональных данных граждан</td><td>Ошибки настройки прав доступа, взлом, инсайдерская угроза</td><td>Репутационные и юридические последствия для администрации города, нарушение ФЗ-152</td><td>2</td><td>3</td><td><strong>6</strong></td><td>Высокий</td><td>TLS для всех коммуникаций, RBAC с серверной проверкой ролей, шифрование чувствительных полей в БД, аудит всех обращений к персональным данным</td><td>Security lead</td><td>Средний</td></tr>
+<tr><td>R-16</td><td>Все</td><td>Потеря истории обращений и журнала аудита</td><td>Сбой БД, ошибка резервного копирования, удаление данных</td><td>Невозможно восстановить цепочку событий, потеря юридической значимости данных</td><td>1</td><td>3</td><td><strong>3</strong></td><td>Средний</td><td>Репликация PostgreSQL (master-replica), инкрементальный бэкап каждые 4 часа, полный бэкап раз в сутки, криптографическая цепочка в Audit Service</td><td>DevOps lead</td><td>Низкий</td></tr>
+<tr><td>R-17</td><td>Все</td><td>Недоступность канала уведомлений</td><td>Сбой push-шлюза (FCM/APNs), SMS-шлюза или email</td><td>Пользователь не получает обновления о статусе обращения</td><td>3</td><td>1</td><td><strong>3</strong></td><td>Средний</td><td>Очередь уведомлений в Kafka с retry и dead letter queue, дублирование по нескольким каналам (push → SMS → email), логирование доставки</td><td>Backend lead</td><td>Низкий</td></tr>
+<tr><td>R-18</td><td>Все</td><td>Перегрузка системы при массовом потоке обращений</td><td>Городские аварии, погодные ЧС, информационные кампании с призывом подавать жалобы</td><td>Замедление обработки, деградация сервиса, нарушение SLA для всех обращений</td><td>3</td><td>3</td><td><strong>9</strong></td><td>Критический</td><td>Горизонтальное масштабирование через Kubernetes (HPA), rate limiting на API-шлюзе, приоритизация критических категорий обращений, автоматические алерты при росте lag</td><td>DevOps lead</td><td>Высокий</td></tr>
+<tr><td>R-19</td><td>Все</td><td>Недоступность системы из-за сбоя инфраструктуры</td><td>Отказ сервера, БД, сети, дата-центра</td><td>Полная остановка приёма и обработки обращений</td><td>2</td><td>3</td><td><strong>6</strong></td><td>Высокий</td><td>Failover с автоматическим переключением, резервирование ключевых сервисов (Redis Sentinel, PostgreSQL replica), DR-план с RTO не более 1 часа</td><td>DevOps lead</td><td>Средний</td></tr>
+<tr><td>R-20</td><td>Все</td><td>Ошибки прав доступа</td><td>Неверная настройка ролей, ошибки при onboarding пользователей</td><td>Пользователь получает лишние права: оператор видит чужие обращения, подрядчик может менять чужие статусы</td><td>2</td><td>3</td><td><strong>6</strong></td><td>Высокий</td><td>RBAC с серверной проверкой на каждом запросе, запрет клиентского управления правами, аудит аномальных обращений, регулярный пересмотр ролевых матриц</td><td>Security lead</td><td>Средний</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h2 id="3-Распределение-приоритетов"><a class="header" href="#3-Распределение-приоритетов">3. Распределение приоритетов</a></h2>
+<h3 id="Критический-p--9"><a class="header" href="#Критический-p--9">Критический (P = 9)</a></h3>
+<ul>
+<li><strong>R-18</strong> — Перегрузка системы при массовом потоке обращений</li>
+</ul>
+<h3 id="Высокий-p--6"><a class="header" href="#Высокий-p--6">Высокий (P = 6)</a></h3>
+<ul>
+<li><strong>R-01</strong> — Потеря обращения при отправке</li>
+<li><strong>R-03</strong> — Массовая отправка спама / фейковых обращений</li>
+<li><strong>R-04</strong> — Система не обнаруживает дубликаты</li>
+<li><strong>R-05</strong> — Обращение назначено неправильному подрядчику</li>
+<li><strong>R-06</strong> — Сервис маршрутизации недоступен</li>
+<li><strong>R-07</strong> — Подрядчик не обновляет статус обращения</li>
+<li><strong>R-12</strong> — Аналитические отчёты содержат некорректные данные</li>
+<li><strong>R-15</strong> — Утечка персональных данных граждан</li>
+<li><strong>R-19</strong> — Недоступность системы из-за сбоя инфраструктуры</li>
+<li><strong>R-20</strong> — Ошибки прав доступа</li>
+</ul>
+<h3 id="Средний-p--34"><a class="header" href="#Средний-p--34">Средний (P = 3–4)</a></h3>
+<ul>
+<li><strong>R-02</strong> — Некорректное определение геолокации</li>
+<li><strong>R-08</strong> — Подрядчик ошибочно закрывает обращение</li>
+<li><strong>R-09</strong> — Фотоотчёт не загружается</li>
+<li><strong>R-10</strong> — Конфликт при одновременной обработке операторами</li>
+<li><strong>R-11</strong> — Оператор отклоняет корректную заявку</li>
+<li><strong>R-13</strong> — Аналитический модуль перегружен</li>
+<li><strong>R-14</strong> — Картографический сервис недоступен</li>
+<li><strong>R-16</strong> — Потеря истории обращений и журнала аудита</li>
+<li><strong>R-17</strong> — Недоступность канала уведомлений</li>
+</ul>
+<hr />
+<h2 id="4-Детальное-описание-мер-реагирования"><a class="header" href="#4-Детальное-описание-мер-реагирования">4. Детальное описание мер реагирования</a></h2>
+<hr />
+<h3 id="r-01--Потеря-обращения-при-отправке"><a class="header" href="#r-01--Потеря-обращения-при-отправке">R-01 — Потеря обращения при отправке</a></h3>
+<p><strong>1. Предотвращение</strong></p>
+<ul>
+<li>Все созданные обращения публикуются в Kafka-топик <code>ticket.created</code> с семантикой at-least-once delivery — потеря события невозможна при штатной работе брокера.</li>
+<li>Ticket Service подтверждает сохранение в БД до отправки ответа клиенту: гражданин получает ID обращения только после записи в Ticket DB.</li>
+<li>Retry с экспоненциальной задержкой при временной недоступности БД или брокера.</li>
+</ul>
+<p><strong>2. Обнаружение</strong></p>
+<ul>
+<li>Мониторинг lag в Kafka-топике <code>ticket.created</code> — при накоплении необработанных сообщений генерируется алерт.</li>
+<li>Сравнение счётчика отправленных запросов (API-шлюз) и созданных записей (Ticket DB) за период — расхождение сигнализирует о потерях.</li>
+</ul>
+<p><strong>3. Реагирование и восстановление</strong></p>
+<ul>
+<li>Dead letter queue для необработанных событий — сообщения, не принятые после N попыток, попадают в отдельный топик для ручного анализа.</li>
+<li>При обнаружении потери — уведомление Backend lead, ручная проверка DLQ и восстановление пропущенных обращений.</li>
+</ul>
+<p><strong>4. Режим деградации</strong></p>
+<ul>
+<li>При временной недоступности Ticket DB — обращения принимаются в буферную очередь и сохраняются при восстановлении; гражданину возвращается предварительный ID с пометкой «обращение принято, регистрация в процессе».</li>
+</ul>
+<p><strong>5. Пост-инцидент</strong></p>
+<ul>
+<li>Анализ причин: сбой инфраструктуры, ошибка конфигурации, перегрузка. Корректировка таймаутов, retry-политик и алертов.</li>
+</ul>
+<hr />
+<h3 id="r-03--Массовая-отправка-спама-или-фейковых-обращений"><a class="header" href="#r-03--Массовая-отправка-спама-или-фейковых-обращений">R-03 — Массовая отправка спама или фейковых обращений</a></h3>
+<p><strong>1. Предотвращение</strong></p>
+<ul>
+<li>Rate limiting на API-шлюзе: не более N запросов в минуту с одного IP / аккаунта.</li>
+<li>CAPTCHA при регистрации первого обращения с нового аккаунта или при превышении частоты.</li>
+<li>Антиспам-проверка в Ticket Service: анализ шаблонности текста, частоты обращений от одного пользователя.</li>
+</ul>
+<p><strong>2. Обнаружение</strong></p>
+<ul>
+<li>Мониторинг скорости поступления обращений — аномальный рост генерирует алерт.</li>
+<li>Выявление источников с аномально высокой частотой: один аккаунт, одна подсеть.</li>
+</ul>
+<p><strong>3. Реагирование и восстановление</strong></p>
+<ul>
+<li>Временная блокировка подозрительных аккаунтов или IP-диапазонов.</li>
+<li>Перевод обращений из подозрительных источников в статус «На проверке» вместо автоматической маршрутизации.</li>
+<li>Уведомление Security lead при масштабной атаке.</li>
+</ul>
+<p><strong>4. Режим деградации</strong></p>
+<ul>
+<li>При критической перегрузке — временное ужесточение rate limit для всех незарегистрированных пользователей, приоритизация обращений от верифицированных аккаунтов.</li>
+</ul>
+<p><strong>5. Пост-инцидент</strong></p>
+<ul>
+<li>Анализ паттернов спам-обращений для дообучения антиспам-фильтра. Пересмотр порогов rate limit.</li>
+</ul>
+<hr />
+<h3 id="r-05--Обращение-назначено-неправильному-подрядчику"><a class="header" href="#r-05--Обращение-назначено-неправильному-подрядчику">R-05 — Обращение назначено неправильному подрядчику</a></h3>
+<p><strong>1. Предотвращение</strong></p>
+<ul>
+<li>Routing Service использует многофакторную классификацию: тип проблемы + геозона + приоритет + текущая загрузка подрядчика.</li>
+<li>Регулярное обновление справочника зон ответственности в Reference DB.</li>
+<li>Пороговое значение уверенности классификатора: при уверенности ниже 70% — fallback на очередь оператора.</li>
+</ul>
+<p><strong>2. Обнаружение</strong></p>
+<ul>
+<li>Аудит маршрутизации: для каждого назначения фиксируется основание (автомат / оператор, категория, подрядчик).</li>
+<li>Оператор может пометить назначение как ошибочное — эти данные накапливаются для анализа качества классификатора.</li>
+</ul>
+<p><strong>3. Реагирование и восстановление</strong></p>
+<ul>
+<li>Оператор через интерфейс возвращает обращение на переназначение — Workflow Service выполняет переход «Назначено → Новое» с фиксацией причины.</li>
+<li>Новое назначение выполняется вручную или повторно через Routing Service.</li>
+<li>Audit Service фиксирует факт ошибочного назначения для статистики.</li>
+</ul>
+<p><strong>4. Режим деградации</strong></p>
+<ul>
+<li>При недоступности Routing Service — все обращения направляются в очередь операторов; ручное назначение обеспечивает непрерывность обработки.</li>
+</ul>
+<p><strong>5. Пост-инцидент</strong></p>
+<ul>
+<li>Данные ручных коррекций используются для переобучения/калибровки классификатора. Пересмотр справочника зон ответственности при систематических ошибках по конкретному региону.</li>
+</ul>
+<hr />
+<h3 id="r-06--Сервис-маршрутизации-недоступен"><a class="header" href="#r-06--Сервис-маршрутизации-недоступен">R-06 — Сервис маршрутизации недоступен</a></h3>
+<p><strong>1. Предотвращение</strong></p>
+<ul>
+<li>Health-check Routing Service с интервалом 30 секунд — при недоступности автоматический алерт Backend lead и DevOps.</li>
+<li>Горизонтальное масштабирование Routing Service (минимум 2 реплики) — единая точка отказа исключена.</li>
+</ul>
+<p><strong>2. Обнаружение</strong></p>
+<ul>
+<li>API-шлюз фиксирует ошибки при проксировании запросов к Routing Service.</li>
+<li>Prometheus-метрики по error rate и latency Routing Service.</li>
+</ul>
+<p><strong>3. Реагирование и восстановление</strong></p>
+<ul>
+<li>При недоступности Routing Service — новые обращения автоматически направляются в очередь Manual Handling Service.</li>
+<li>Операторы получают уведомление о режиме ручной маршрутизации.</li>
+<li>При восстановлении — накопившиеся в очереди обращения обрабатываются Routing Service в штатном режиме.</li>
+</ul>
+<p><strong>4. Режим деградации</strong></p>
+<ul>
+<li>Ручная маршрутизация операторами обеспечивает непрерывность приёма обращений без деградации для гражданина.</li>
+</ul>
+<p><strong>5. Пост-инцидент</strong></p>
+<ul>
+<li>Анализ причин сбоя. Пересмотр стратегии масштабирования и circuit breaker-настроек для Routing Service.</li>
+</ul>
+<hr />
+<h3 id="r-07--Подрядчик-не-обновляет-статус-обращения"><a class="header" href="#r-07--Подрядчик-не-обновляет-статус-обращения">R-07 — Подрядчик не обновляет статус обращения</a></h3>
+<p><strong>1. Предотвращение</strong></p>
+<ul>
+<li>SLA Monitor публикует событие <code>sla.warning</code> за установленное время до истечения срока — подрядчик получает push/SMS.</li>
+<li>Повторные напоминания с нарастающей частотой (за 4 часа, за 2 часа, за 1 час).</li>
+<li>В приложении подрядчика задачи с приближающимся SLA выделяются визуально.</li>
+</ul>
+<p><strong>2. Обнаружение</strong></p>
+<ul>
+<li>SLA Monitor фиксирует все обращения, у которых статус «В работе» держится дольше установленного SLA.</li>
+<li>Оператор видит список просроченных задач в интерфейсе в реальном времени.</li>
+</ul>
+<p><strong>3. Реагирование и восстановление</strong></p>
+<ul>
+<li>При нарушении SLA — событие <code>sla.violation</code> публикуется в Kafka, Notification Service уведомляет оператора.</li>
+<li>Оператор связывается с подрядчиком, при необходимости — перенаправляет обращение другому исполнителю.</li>
+<li>Audit Service фиксирует нарушение с временной меткой.</li>
+</ul>
+<p><strong>4. Режим деградации</strong></p>
+<ul>
+<li>Если подрядчик недоступен — оператор вручную меняет статус обращения или назначает нового подрядчика через интерфейс.</li>
+</ul>
+<p><strong>5. Пост-инцидент</strong></p>
+<ul>
+<li>Analytics Service агрегирует нарушения SLA по подрядчику за период — для управленческих решений администрации города. Систематические нарушения используются как основание для пересмотра договорных отношений.</li>
+</ul>
+<hr />
+<h3 id="r-12--Аналитические-отчёты-содержат-неполные-данные"><a class="header" href="#r-12--Аналитические-отчёты-содержат-неполные-данные">R-12 — Аналитические отчёты содержат неполные данные</a></h3>
+<p><strong>1. Предотвращение</strong></p>
+<ul>
+<li>Analytics Service потребляет события из Kafka с проверкой offset — гарантия отсутствия пропущенных событий.</li>
+<li>Валидация агрегатов перед сохранением в витрины: суммы и счётчики сверяются с Ticket DB.</li>
+<li>Мониторинг lag в Kafka-топиках: при задержке более N минут генерируется алерт.</li>
+</ul>
+<p><strong>2. Обнаружение</strong></p>
+<ul>
+<li>На дашборде отображается временная метка последнего обновления данных — пользователь видит актуальность витрины.</li>
+<li>При обнаружении расхождения — предупреждение «Данные могут быть неполными, обновление в процессе».</li>
+</ul>
+<p><strong>3. Реагирование и восстановление</strong></p>
+<ul>
+<li>Повторная агрегация за затронутый период при восстановлении Kafka-потока.</li>
+<li>Ручной запуск пересчёта витрин администратором аналитики.</li>
+</ul>
+<p><strong>4. Режим деградации</strong></p>
+<ul>
+<li>При недоступности Analytics Service — дашборды показывают кэшированные данные из Redis с явным указанием времени кэша.</li>
+</ul>
+<p><strong>5. Пост-инцидент</strong></p>
+<ul>
+<li>Анализ причин задержки или пропуска событий. Пересмотр мониторинга lag и настройки consumer group.</li>
+</ul>
+<hr />
+<h3 id="r-15--Утечка-персональных-данных-граждан"><a class="header" href="#r-15--Утечка-персональных-данных-граждан">R-15 — Утечка персональных данных граждан</a></h3>
+<p><strong>1. Предотвращение</strong></p>
+<ul>
+<li>TLS 1.2+ для всех внешних и внутренних коммуникаций.</li>
+<li>RBAC с серверной проверкой на каждом запросе — клиентский контроль прав не допускается.</li>
+<li>Шифрование чувствительных полей (ФИО, телефон, email) в Ticket DB и Auth DB.</li>
+<li>Принцип минимальных привилегий: каждый сервис имеет доступ только к необходимым таблицам.</li>
+</ul>
+<p><strong>2. Обнаружение</strong></p>
+<ul>
+<li>Audit Service фиксирует все обращения к персональным данным — аномальный рост чтений генерирует алерт Security lead.</li>
+<li>SIEM-интеграция для выявления подозрительных паттернов (массовый экспорт, нехарактерное время запросов).</li>
+</ul>
+<p><strong>3. Реагирование и восстановление</strong></p>
+<ul>
+<li>При подозрении на утечку — немедленная блокировка подозрительных сессий/аккаунтов.</li>
+<li>Уведомление ответственного по ИБ, оценка масштаба утечки по журналам аудита.</li>
+<li>Уведомление пострадавших граждан и Роскомнадзора в соответствии с ФЗ-152.</li>
+</ul>
+<p><strong>4. Режим деградации</strong></p>
+<ul>
+<li>При компрометации отдельного токена — его немедленный отзыв в Auth Service без остановки системы.</li>
+</ul>
+<p><strong>5. Пост-инцидент</strong></p>
+<ul>
+<li>Расследование инцидента. Пересмотр политик доступа, ротация ключей шифрования. Аудит всех ролей и привилегий.</li>
+</ul>
+<hr />
+<h3 id="r-18--Перегрузка-системы-при-массовом-потоке-обращений"><a class="header" href="#r-18--Перегрузка-системы-при-массовом-потоке-обращений">R-18 — Перегрузка системы при массовом потоке обращений</a></h3>
+<p><strong>1. Предотвращение</strong></p>
+<ul>
+<li>Горизонтальное масштабирование через Kubernetes Horizontal Pod Autoscaler (HPA) — число реплик критических сервисов растёт автоматически при росте нагрузки.</li>
+<li>Rate limiting на API-шлюзе предотвращает лавинообразный рост запросов.</li>
+<li>Capacity planning с учётом пиковых сценариев (городские ЧС, массовые аварии ЖКХ).</li>
+</ul>
+<p><strong>2. Обнаружение</strong></p>
+<ul>
+<li>Prometheus-алерты при росте latency P95 выше 2 секунд или error rate выше 1%.</li>
+<li>Grafana-дашборды для мониторинга RPS, lag в Kafka, загрузки CPU/RAM в реальном времени.</li>
+<li>Алерт при накоплении очереди в Kafka-топиках выше порогового значения.</li>
+</ul>
+<p><strong>3. Реагирование и восстановление</strong></p>
+<ul>
+<li>Автоматический scale-out — Kubernetes добавляет поды при превышении порогов нагрузки.</li>
+<li>Приоритизация критических категорий обращений (аварии газа, воды, электричества) — обрабатываются в первую очередь.</li>
+<li>При критической перегрузке — временное ограничение приёма некритичных категорий обращений с уведомлением пользователя.</li>
+</ul>
+<p><strong>4. Режим деградации</strong></p>
+<ul>
+<li>Постепенная деградация: аналитический модуль и генерация отчётов отключаются первыми, освобождая ресурсы для приёма обращений.</li>
+<li>Кэшированные ответы для часто запрашиваемых справочников снижают нагрузку на БД.</li>
+</ul>
+<p><strong>5. Пост-инцидент</strong></p>
+<ul>
+<li>Анализ паттерна нагрузки, пересмотр лимитов HPA и настроек rate limiting. Обновление capacity plan с учётом реального пика.</li>
+</ul>
+<hr />
+<h3 id="r-19--Недоступность-системы-из-за-сбоя-инфраструктуры"><a class="header" href="#r-19--Недоступность-системы-из-за-сбоя-инфраструктуры">R-19 — Недоступность системы из-за сбоя инфраструктуры</a></h3>
+<p><strong>1. Предотвращение</strong></p>
+<ul>
+<li>Резервирование ключевых компонентов: PostgreSQL replica, Redis Sentinel с автоматическим переключением, Kafka-кластер из минимум 3 брокеров.</li>
+<li>Размещение сервисов в нескольких зонах доступности (при облачном развёртывании).</li>
+<li>Kubernetes обеспечивает автоматический перезапуск упавших подов.</li>
+</ul>
+<p><strong>2. Обнаружение</strong></p>
+<ul>
+<li>Health-check всех микросервисов с интервалом 30 секунд — при недоступности автоматический алерт DevOps lead.</li>
+<li>Prometheus + Grafana — сквозной мониторинг всех компонентов с историей инцидентов.</li>
+</ul>
+<p><strong>3. Реагирование и восстановление</strong></p>
+<ul>
+<li>DR-план с задокументированными процедурами восстановления, RTO не более 1 часа.</li>
+<li>Автоматическое переключение на реплику PostgreSQL при падении мастера (время переключения — менее 30 секунд с PostgreSQL Patroni).</li>
+<li>Восстановление из резервной копии при потере данных — RPO не более 4 часов.</li>
+</ul>
+<p><strong>4. Режим деградации</strong></p>
+<ul>
+<li>Граждане получают статическую страницу с информацией о плановых работах и ожидаемом времени восстановления.</li>
+</ul>
+<p><strong>5. Пост-инцидент</strong></p>
+<ul>
+<li>Post-mortem анализ: причина, время обнаружения, время восстановления, затронутые пользователи. Обновление DR-плана.</li>
+</ul>
+<hr />
+<h3 id="r-20--Ошибки-прав-доступа"><a class="header" href="#r-20--Ошибки-прав-доступа">R-20 — Ошибки прав доступа</a></h3>
+<p><strong>1. Предотвращение</strong></p>
+<ul>
+<li>RBAC-матрица ролей задаётся централизованно в административной панели — исключён ручной SQL-доступ к таблицам прав.</li>
+<li>Серверная проверка прав на каждый запрос в API-шлюзе и в каждом микросервисе.</li>
+<li>Принцип наименьших привилегий по умолчанию: новый пользователь получает минимальную роль до явного назначения.</li>
+</ul>
+<p><strong>2. Обнаружение</strong></p>
+<ul>
+<li>Audit Service фиксирует все попытки доступа к защищённым ресурсам — отказ в доступе логируется.</li>
+<li>Алерт при аномальных паттернах: массовый доступ к чужим обращениям, нехарактерные действия для роли.</li>
+</ul>
+<p><strong>3. Реагирование и восстановление</strong></p>
+<ul>
+<li>При обнаружении некорректных прав — немедленный отзыв токенов затронутого аккаунта, аудит его действий за период.</li>
+<li>Пересмотр ролевой матрицы, исправление настроек, повторное тестирование разграничения доступа.</li>
+</ul>
+<p><strong>4. Режим деградации</strong></p>
+<ul>
+<li>При сомнении в корректности роли — запрос принимается с понижением до минимальных прав до ручной верификации администратором.</li>
+</ul>
+<p><strong>5. Пост-инцидент</strong></p>
+<ul>
+<li>Регулярный (ежеквартальный) аудит ролей всех пользователей системы. Обновление ролевой матрицы при изменении организационной структуры.</li>
+</ul>
+<hr />
+<h2 id="5-Критерии-готовности-реестра-рисков"><a class="header" href="#5-Критерии-готовности-реестра-рисков">5. Критерии готовности реестра рисков</a></h2>
+<ul>
+<li>У каждого риска назначен <strong>владелец</strong>, ответственный за реализацию мер и мониторинг.</li>
+<li>Меры реагирования охватывают все пять уровней: <strong>предотвращение, обнаружение, реагирование и восстановление, режим деградации, пост-инцидент</strong>.</li>
+<li><strong>Остаточный риск</strong> по каждому пункту принят владельцем или эскалирован руководству проекта при невозможности снижения до приемлемого уровня.</li>
+<li>Для каждого риска определены <strong>триггеры мониторинга</strong> — измеримые условия, при наступлении которых событие считается инцидентом.</li>
+<li>Реестр <strong>пересматривается не реже 1 раза в квартал</strong> или при существенном изменении архитектуры, инфраструктуры или состава подрядчиков.</li>
+<li>Критический риск <strong>R-18</strong> (перегрузка при массовом потоке) требует обязательного нагрузочного тестирования перед запуском системы в промышленную эксплуатацию.</li>
+</ul>
+<hr />
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="architecture.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="vv.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="architecture.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="vv.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>
