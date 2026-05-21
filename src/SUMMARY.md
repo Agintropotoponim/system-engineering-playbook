@@ -2,7 +2,7 @@
 
 - [Контекст и границы SoI](./soi.md)
 - [CONOPS/OPSCON](./conops.md)
-- [Требования]
+- [Требования](#)
     - [SR-SH — Stakeholder Requirements](./sr-sh.md)
     - [SR-SYS — System Requirements](./sr-sys.md)
     - [NFR - Нефункциональные требования](./nfr.md)
