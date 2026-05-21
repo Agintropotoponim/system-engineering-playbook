@@ -27,7 +27,6 @@
 
 Спецификация в формате OpenAPI 3.0 находится в файле `swagger.yaml`. Для интерактивного просмотра:
 
-```html
 <iframe
     src="swagger/swagger.html"
     width="100%"
@@ -36,7 +35,6 @@
     allowfullscreen="allowfullscreen"
 >
 </iframe>
-```
 
 ---
 
