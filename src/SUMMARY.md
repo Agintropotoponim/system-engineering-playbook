@@ -7,5 +7,6 @@
     - [SR-SYS — System Requirements](./sr-sys.md)
     - [NFR - Нефункциональные требования](./nfr.md)
 - [Архитектура](./architecture.md)
+- [Интерфейсы (ICD-lite)](./icd.md)
 - [Риски](./risks.md)
 - [Validation & Verification](./vv.md)

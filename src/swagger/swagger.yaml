@@ -1,31 +1,1331 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
-  title: API Documentation
-  version: 1.0.0
-  description: API documentation for the application
+    title: Городские обращения 24/7 — API
+    version: 1.0.0
+    description: |
+        REST API системы обработки городских обращений граждан.
+        Обеспечивает создание и отслеживание обращений, работу оператора,
+        подрядчика, администратора и аналитика.
+
 servers:
-  - url: /api
-    description: API prefix
+    - url: https://api.gorod247.ru/v1
+      description: Production
+
+tags:
+    - name: Обращения
+      description: Создание, просмотр и управление обращениями граждан
+    - name: Статусы
+      description: Изменение статуса обращения
+    - name: Файлы
+      description: Загрузка фотографий и отчётов
+    - name: Маршрутизация
+      description: Назначение подрядчика и управление маршрутизацией
+    - name: Уведомления
+      description: Управление уведомлениями
+    - name: Аналитика
+      description: Отчёты и статистика
+    - name: Администрирование
+      description: Управление пользователями и ролями
 
 paths:
-  /ping:
-    get:
-      tags:
-        - Health Check
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Ok"
+    /tickets:
+        post:
+            tags: [Обращения]
+            summary: Создать обращение
+            description: |
+                Создаёт новое обращение гражданина. Выполняет валидацию обязательных полей,
+                антиспам-проверку и проверку дубликатов. Идемпотентен при передаче
+                `Idempotency-Key`.
+            operationId: createTicket
+            parameters:
+                - $ref: "#/components/parameters/IdempotencyKey"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/CreateTicketRequest"
+            responses:
+                "201":
+                    description: Обращение создано
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/TicketCreatedResponse"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthorized"
+                "409":
+                    description: Возможный дубликат обращения
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/DuplicateWarningResponse"
+                "422":
+                    $ref: "#/components/responses/ValidationError"
+                "429":
+                    $ref: "#/components/responses/TooManyRequests"
+                "503":
+                    $ref: "#/components/responses/ServiceUnavailable"
+
+        get:
+            tags: [Обращения]
+            summary: Получить список обращений
+            description: |
+                Возвращает постраничный список обращений с поддержкой фильтрации.
+                Для граждан — только собственные обращения.
+                Для операторов и администраторов — все обращения.
+            operationId: listTickets
+            parameters:
+                - $ref: "#/components/parameters/PageParam"
+                - $ref: "#/components/parameters/LimitParam"
+                - name: status
+                  in: query
+                  schema:
+                      $ref: "#/components/schemas/TicketStatus"
+                - name: category
+                  in: query
+                  schema:
+                      type: string
+                      example: roads
+                - name: district
+                  in: query
+                  schema:
+                      type: string
+                      example: central
+                - name: date_from
+                  in: query
+                  schema:
+                      type: string
+                      format: date
+                - name: date_to
+                  in: query
+                  schema:
+                      type: string
+                      format: date
+                - name: contractor_id
+                  in: query
+                  schema:
+                      type: string
+                      format: uuid
+            responses:
+                "200":
+                    description: Список обращений
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/TicketListResponse"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthorized"
+
+    /tickets/{ticket_id}:
+        get:
+            tags: [Обращения]
+            summary: Получить обращение по ID
+            operationId: getTicket
+            parameters:
+                - $ref: "#/components/parameters/TicketId"
+            responses:
+                "200":
+                    description: Карточка обращения
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/TicketDetail"
+                "401":
+                    $ref: "#/components/responses/Unauthorized"
+                "403":
+                    $ref: "#/components/responses/Forbidden"
+                "404":
+                    $ref: "#/components/responses/NotFound"
+
+        patch:
+            tags: [Обращения]
+            summary: Обновить данные обращения (оператор)
+            description: |
+                Позволяет оператору редактировать описание, категорию и геолокацию
+                обращения до момента его завершения.
+            operationId: updateTicket
+            parameters:
+                - $ref: "#/components/parameters/TicketId"
+                - $ref: "#/components/parameters/IdempotencyKey"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UpdateTicketRequest"
+            responses:
+                "200":
+                    description: Обращение обновлено
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/TicketDetail"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthorized"
+                "403":
+                    $ref: "#/components/responses/Forbidden"
+                "404":
+                    $ref: "#/components/responses/NotFound"
+                "409":
+                    $ref: "#/components/responses/Conflict"
+
+    /tickets/{ticket_id}/status:
+        put:
+            tags: [Статусы]
+            summary: Изменить статус обращения
+            description: |
+                Изменяет статус обращения в рамках допустимого жизненного цикла.
+                Переходы проверяются конечным автоматом: не все статусы достижимы
+                из текущего состояния.
+
+                Допустимые переходы:
+                - `new` → `assigned`
+                - `assigned` → `in_progress`
+                - `in_progress` → `completed` | `returned`
+                - `completed` → `closed`
+                - `returned` → `assigned`
+                - `new` | `assigned` → `rejected` (только оператор)
+            operationId: updateTicketStatus
+            parameters:
+                - $ref: "#/components/parameters/TicketId"
+                - $ref: "#/components/parameters/IdempotencyKey"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/StatusUpdateRequest"
+            responses:
+                "200":
+                    description: Статус обновлён
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/StatusUpdateResponse"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthorized"
+                "403":
+                    $ref: "#/components/responses/Forbidden"
+                "404":
+                    $ref: "#/components/responses/NotFound"
+                "409":
+                    description: Недопустимый переход статуса
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                            example:
+                                error_code: INVALID_STATUS_TRANSITION
+                                message: "Переход из статуса 'completed' в 'new' запрещён"
+                                details:
+                                    current_status: completed
+                                    requested_status: new
+
+    /tickets/{ticket_id}/attachments:
+        post:
+            tags: [Файлы]
+            summary: Загрузить фото или вложение
+            description: |
+                Загружает фотографию к обращению. Допустимые форматы: JPEG, PNG.
+                Максимальный размер файла: 10 МБ. Вычисляет и сохраняет SHA-256
+                контрольную сумму файла.
+
+                При недоступности хранилища возвращает `503` и сохраняет
+                обращение без фото — гражданин может загрузить его позже.
+            operationId: uploadAttachment
+            parameters:
+                - $ref: "#/components/parameters/TicketId"
+                - $ref: "#/components/parameters/IdempotencyKey"
+            requestBody:
+                required: true
+                content:
+                    multipart/form-data:
+                        schema:
+                            type: object
+                            required: [file]
+                            properties:
+                                file:
+                                    type: string
+                                    format: binary
+                                    description: Файл изображения (JPEG, PNG, максимум 10 МБ)
+                                comment:
+                                    type: string
+                                    maxLength: 500
+                                    description: Комментарий к вложению
+            responses:
+                "201":
+                    description: Файл загружен
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/AttachmentResponse"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthorized"
+                "403":
+                    $ref: "#/components/responses/Forbidden"
+                "404":
+                    $ref: "#/components/responses/NotFound"
+                "413":
+                    description: Файл превышает допустимый размер
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                            example:
+                                error_code: FILE_TOO_LARGE
+                                message: "Размер файла превышает 10 МБ"
+                "415":
+                    description: Неподдерживаемый формат файла
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                            example:
+                                error_code: UNSUPPORTED_MEDIA_TYPE
+                                message: "Допустимые форматы: JPEG, PNG"
+                "503":
+                    $ref: "#/components/responses/ServiceUnavailable"
+
+        get:
+            tags: [Файлы]
+            summary: Получить список вложений обращения
+            operationId: listAttachments
+            parameters:
+                - $ref: "#/components/parameters/TicketId"
+            responses:
+                "200":
+                    description: Список вложений
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    attachments:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/AttachmentResponse"
+                "401":
+                    $ref: "#/components/responses/Unauthorized"
+                "404":
+                    $ref: "#/components/responses/NotFound"
+
+    /tickets/{ticket_id}/assignment:
+        put:
+            tags: [Маршрутизация]
+            summary: Назначить или переназначить подрядчика
+            description: |
+                Оператор или система маршрутизации назначают подрядчика на обращение.
+                При ручном переназначении требуется роль `operator` или `admin`.
+            operationId: assignTicket
+            parameters:
+                - $ref: "#/components/parameters/TicketId"
+                - $ref: "#/components/parameters/IdempotencyKey"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/AssignmentRequest"
+            responses:
+                "200":
+                    description: Подрядчик назначен
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/AssignmentResponse"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthorized"
+                "403":
+                    $ref: "#/components/responses/Forbidden"
+                "404":
+                    $ref: "#/components/responses/NotFound"
+
+    /tickets/{ticket_id}/return:
+        post:
+            tags: [Маршрутизация]
+            summary: Вернуть обращение оператору (подрядчик)
+            description: |
+                Подрядчик возвращает обращение оператору с обязательным указанием причины.
+                Статус переходит в `returned`.
+            operationId: returnTicket
+            parameters:
+                - $ref: "#/components/parameters/TicketId"
+                - $ref: "#/components/parameters/IdempotencyKey"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required: [reason]
+                            properties:
+                                reason:
+                                    type: string
+                                    minLength: 10
+                                    maxLength: 1000
+                                    description: Причина возврата (обязательна)
+                                    example: "Ошибочное назначение, адрес вне нашей зоны ответственности"
+            responses:
+                "200":
+                    description: Обращение возвращено оператору
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/StatusUpdateResponse"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthorized"
+                "403":
+                    $ref: "#/components/responses/Forbidden"
+                "404":
+                    $ref: "#/components/responses/NotFound"
+                "422":
+                    description: Причина возврата не указана
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                            example:
+                                error_code: REASON_REQUIRED
+                                message: "Укажите причину возврата"
+
+    /notifications:
+        get:
+            tags: [Уведомления]
+            summary: Получить уведомления текущего пользователя
+            operationId: listNotifications
+            parameters:
+                - $ref: "#/components/parameters/PageParam"
+                - $ref: "#/components/parameters/LimitParam"
+                - name: is_read
+                  in: query
+                  schema:
+                      type: boolean
+            responses:
+                "200":
+                    description: Список уведомлений
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/NotificationListResponse"
+                "401":
+                    $ref: "#/components/responses/Unauthorized"
+
+    /notifications/{notification_id}/read:
+        post:
+            tags: [Уведомления]
+            summary: Отметить уведомление как прочитанное
+            operationId: markNotificationRead
+            parameters:
+                - name: notification_id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            responses:
+                "204":
+                    description: Уведомление отмечено как прочитанное
+                "401":
+                    $ref: "#/components/responses/Unauthorized"
+                "404":
+                    $ref: "#/components/responses/NotFound"
+
+    /analytics/reports:
+        post:
+            tags: [Аналитика]
+            summary: Создать запрос на формирование отчёта
+            description: |
+                Запускает асинхронное формирование отчёта. Для выборок > 100 000 записей
+                возвращает `202 Accepted` с `report_id`. Статус готовности проверяется
+                через `GET /analytics/reports/{report_id}`.
+                Для небольших выборок (< 100 000) может вернуть `200` с данными сразу.
+            operationId: createReport
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/ReportRequest"
+            responses:
+                "200":
+                    description: Отчёт сформирован синхронно
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ReportResponse"
+                "202":
+                    description: Отчёт поставлен в очередь (асинхронно)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ReportAcceptedResponse"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthorized"
+                "403":
+                    $ref: "#/components/responses/Forbidden"
+
+    /analytics/reports/{report_id}:
+        get:
+            tags: [Аналитика]
+            summary: Получить статус и результат отчёта
+            operationId: getReport
+            parameters:
+                - name: report_id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            responses:
+                "200":
+                    description: Отчёт готов или в процессе
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ReportResponse"
+                "401":
+                    $ref: "#/components/responses/Unauthorized"
+                "403":
+                    $ref: "#/components/responses/Forbidden"
+                "404":
+                    $ref: "#/components/responses/NotFound"
+
+    /analytics/reports/{report_id}/export:
+        get:
+            tags: [Аналитика]
+            summary: Скачать отчёт в виде файла
+            operationId: exportReport
+            parameters:
+                - name: report_id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+                - name: format
+                  in: query
+                  schema:
+                      type: string
+                      enum: [csv, xlsx, json]
+                      default: xlsx
+            responses:
+                "200":
+                    description: Файл отчёта
+                    content:
+                        application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+                            schema:
+                                type: string
+                                format: binary
+                        text/csv:
+                            schema:
+                                type: string
+                                format: binary
+                "401":
+                    $ref: "#/components/responses/Unauthorized"
+                "403":
+                    $ref: "#/components/responses/Forbidden"
+                "404":
+                    $ref: "#/components/responses/NotFound"
+                "503":
+                    $ref: "#/components/responses/ServiceUnavailable"
+
+    /admin/users:
+        get:
+            tags: [Администрирование]
+            summary: Получить список пользователей
+            operationId: listUsers
+            parameters:
+                - $ref: "#/components/parameters/PageParam"
+                - $ref: "#/components/parameters/LimitParam"
+                - name: role
+                  in: query
+                  schema:
+                      $ref: "#/components/schemas/UserRole"
+            responses:
+                "200":
+                    description: Список пользователей
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/UserListResponse"
+                "401":
+                    $ref: "#/components/responses/Unauthorized"
+                "403":
+                    $ref: "#/components/responses/Forbidden"
+
+    /admin/users/{user_id}/role:
+        put:
+            tags: [Администрирование]
+            summary: Изменить роль пользователя
+            operationId: updateUserRole
+            parameters:
+                - name: user_id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required: [role]
+                            properties:
+                                role:
+                                    $ref: "#/components/schemas/UserRole"
+            responses:
+                "200":
+                    description: Роль обновлена
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/UserResponse"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthorized"
+                "403":
+                    $ref: "#/components/responses/Forbidden"
+                "404":
+                    $ref: "#/components/responses/NotFound"
+
+    /admin/audit-log:
+        get:
+            tags: [Администрирование]
+            summary: Получить записи аудит-лога
+            operationId: getAuditLog
+            parameters:
+                - $ref: "#/components/parameters/PageParam"
+                - $ref: "#/components/parameters/LimitParam"
+                - name: user_id
+                  in: query
+                  schema:
+                      type: string
+                      format: uuid
+                - name: action
+                  in: query
+                  schema:
+                      type: string
+                - name: date_from
+                  in: query
+                  schema:
+                      type: string
+                      format: date-time
+                - name: date_to
+                  in: query
+                  schema:
+                      type: string
+                      format: date-time
+            responses:
+                "200":
+                    description: Записи аудит-лога
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/AuditLogResponse"
+                "401":
+                    $ref: "#/components/responses/Unauthorized"
+                "403":
+                    $ref: "#/components/responses/Forbidden"
 
 components:
-  schemas:
-    Ok:
-      type: object
-      properties:
-        ok:
-          type: boolean
-          example: true
-      required:
-        - ok
+    parameters:
+        TicketId:
+            name: ticket_id
+            in: path
+            required: true
+            schema:
+                type: string
+                format: uuid
+            description: Уникальный идентификатор обращения
+
+        IdempotencyKey:
+            name: Idempotency-Key
+            in: header
+            required: false
+            schema:
+                type: string
+                format: uuid
+            description: |
+                Ключ идемпотентности (UUID). При повторном запросе с тем же ключом
+                возвращается кэшированный ответ без повторного выполнения операции.
+                Хранится 24 часа.
+
+        PageParam:
+            name: page
+            in: query
+            schema:
+                type: integer
+                minimum: 1
+                default: 1
+
+        LimitParam:
+            name: limit
+            in: query
+            schema:
+                type: integer
+                minimum: 1
+                maximum: 100
+                default: 20
+
+    schemas:
+        TicketStatus:
+            type: string
+            enum:
+                - new
+                - assigned
+                - in_progress
+                - completed
+                - returned
+                - rejected
+                - closed
+            description: |
+                Статусы жизненного цикла обращения:
+                - `new` — зарегистрировано, ожидает маршрутизации
+                - `assigned` — назначено подрядчику
+                - `in_progress` — подрядчик принял в работу
+                - `completed` — работы выполнены, ожидает подтверждения
+                - `returned` — возвращено оператору подрядчиком
+                - `rejected` — отклонено оператором
+                - `closed` — закрыто после подтверждения выполнения
+
+        UserRole:
+            type: string
+            enum:
+                - citizen
+                - operator
+                - contractor
+                - analyst
+                - admin
+            description: Роль пользователя в системе
+
+        GeoPoint:
+            type: object
+            required: [latitude, longitude]
+            properties:
+                latitude:
+                    type: number
+                    format: double
+                    minimum: -90
+                    maximum: 90
+                    example: 55.7558
+                longitude:
+                    type: number
+                    format: double
+                    minimum: -180
+                    maximum: 180
+                    example: 37.6173
+                address:
+                    type: string
+                    maxLength: 500
+                    description: Текстовый адрес (опционально, от геокодера или введён вручную)
+                    example: "Москва, ул. Тверская, д. 1"
+                source:
+                    type: string
+                    enum: [gps, manual, geocoder]
+                    description: Источник координат
+
+        CreateTicketRequest:
+            type: object
+            required: [description, category, location]
+            properties:
+                description:
+                    type: string
+                    minLength: 10
+                    maxLength: 2000
+                    description: Описание проблемы
+                    example: "Яма на дороге глубиной около 30 см, опасна для транспорта"
+                category:
+                    type: string
+                    maxLength: 100
+                    description: Категория проблемы
+                    example: "roads"
+                location:
+                    $ref: "#/components/schemas/GeoPoint"
+                district:
+                    type: string
+                    maxLength: 100
+                    description: Административный район (определяется автоматически или вручную)
+                    example: "central"
+
+        TicketCreatedResponse:
+            type: object
+            required: [ticket_id, status, created_at]
+            properties:
+                ticket_id:
+                    type: string
+                    format: uuid
+                    description: Уникальный идентификатор обращения
+                status:
+                    $ref: "#/components/schemas/TicketStatus"
+                created_at:
+                    type: string
+                    format: date-time
+                message:
+                    type: string
+                    example: "Обращение №ABC-12345 зарегистрировано"
+
+        DuplicateWarningResponse:
+            type: object
+            properties:
+                warning_code:
+                    type: string
+                    enum: [POSSIBLE_DUPLICATE]
+                existing_ticket_id:
+                    type: string
+                    format: uuid
+                    description: ID похожего обращения
+                existing_ticket_status:
+                    $ref: "#/components/schemas/TicketStatus"
+                similarity_score:
+                    type: number
+                    format: float
+                    minimum: 0
+                    maximum: 1
+                    description: Степень совпадения (0–1)
+                message:
+                    type: string
+                    example: "Найдено похожее обращение. Хотите всё равно создать новое?"
+                actions:
+                    type: array
+                    items:
+                        type: string
+                        enum: [view_existing, create_anyway]
+
+        UpdateTicketRequest:
+            type: object
+            properties:
+                description:
+                    type: string
+                    minLength: 10
+                    maxLength: 2000
+                category:
+                    type: string
+                    maxLength: 100
+                location:
+                    $ref: "#/components/schemas/GeoPoint"
+                district:
+                    type: string
+                    maxLength: 100
+
+        TicketDetail:
+            type: object
+            required:
+                [ticket_id, status, created_at, description, category, location]
+            properties:
+                ticket_id:
+                    type: string
+                    format: uuid
+                status:
+                    $ref: "#/components/schemas/TicketStatus"
+                description:
+                    type: string
+                category:
+                    type: string
+                district:
+                    type: string
+                location:
+                    $ref: "#/components/schemas/GeoPoint"
+                citizen_id:
+                    type: string
+                    format: uuid
+                contractor_id:
+                    type: string
+                    format: uuid
+                    nullable: true
+                contractor_name:
+                    type: string
+                    nullable: true
+                attachments_count:
+                    type: integer
+                created_at:
+                    type: string
+                    format: date-time
+                updated_at:
+                    type: string
+                    format: date-time
+                status_history:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/StatusHistoryEntry"
+
+        StatusHistoryEntry:
+            type: object
+            properties:
+                status:
+                    $ref: "#/components/schemas/TicketStatus"
+                changed_by:
+                    type: string
+                    format: uuid
+                changed_by_role:
+                    $ref: "#/components/schemas/UserRole"
+                changed_at:
+                    type: string
+                    format: date-time
+                comment:
+                    type: string
+                    nullable: true
+
+        TicketListResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/TicketDetail"
+                total:
+                    type: integer
+                page:
+                    type: integer
+                limit:
+                    type: integer
+                has_next:
+                    type: boolean
+
+        StatusUpdateRequest:
+            type: object
+            required: [status]
+            properties:
+                status:
+                    $ref: "#/components/schemas/TicketStatus"
+                comment:
+                    type: string
+                    maxLength: 1000
+                    description: Причина отклонения (обязательна при status=rejected)
+                    example: "Обращение вне зоны ответственности"
+
+        StatusUpdateResponse:
+            type: object
+            properties:
+                ticket_id:
+                    type: string
+                    format: uuid
+                previous_status:
+                    $ref: "#/components/schemas/TicketStatus"
+                current_status:
+                    $ref: "#/components/schemas/TicketStatus"
+                updated_at:
+                    type: string
+                    format: date-time
+
+        AttachmentResponse:
+            type: object
+            properties:
+                attachment_id:
+                    type: string
+                    format: uuid
+                ticket_id:
+                    type: string
+                    format: uuid
+                filename:
+                    type: string
+                    example: "photo_pothole.jpg"
+                content_type:
+                    type: string
+                    example: "image/jpeg"
+                size_bytes:
+                    type: integer
+                    example: 2048000
+                sha256_checksum:
+                    type: string
+                    description: SHA-256 контрольная сумма файла
+                    example: "a3f5c2d1..."
+                url:
+                    type: string
+                    format: uri
+                    description: Временная ссылка для скачивания (TTL 1 час)
+                uploaded_by:
+                    type: string
+                    format: uuid
+                uploaded_at:
+                    type: string
+                    format: date-time
+                comment:
+                    type: string
+                    nullable: true
+
+        AssignmentRequest:
+            type: object
+            required: [contractor_id]
+            properties:
+                contractor_id:
+                    type: string
+                    format: uuid
+                    description: ID подрядчика
+                assignment_reason:
+                    type: string
+                    maxLength: 500
+                    description: Причина ручного переназначения (если выполняется оператором)
+                    example: "Ошибка автоматической маршрутизации, корректный подрядчик — ДорСервис"
+
+        AssignmentResponse:
+            type: object
+            properties:
+                ticket_id:
+                    type: string
+                    format: uuid
+                contractor_id:
+                    type: string
+                    format: uuid
+                contractor_name:
+                    type: string
+                assigned_at:
+                    type: string
+                    format: date-time
+                assigned_by:
+                    type: string
+                    format: uuid
+
+        NotificationListResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/NotificationItem"
+                total:
+                    type: integer
+                unread_count:
+                    type: integer
+
+        NotificationItem:
+            type: object
+            properties:
+                notification_id:
+                    type: string
+                    format: uuid
+                ticket_id:
+                    type: string
+                    format: uuid
+                type:
+                    type: string
+                    enum:
+                        - ticket_registered
+                        - status_changed
+                        - work_completed
+                        - comment_added
+                        - assignment_changed
+                title:
+                    type: string
+                    example: "Обращение №ABC-12345 принято в работу"
+                body:
+                    type: string
+                is_read:
+                    type: boolean
+                created_at:
+                    type: string
+                    format: date-time
+
+        ReportRequest:
+            type: object
+            required: [type]
+            properties:
+                type:
+                    type: string
+                    enum:
+                        - tickets_summary
+                        - contractor_performance
+                        - category_distribution
+                        - district_heatmap
+                        - timeline_dynamics
+                    description: Тип отчёта
+                filters:
+                    type: object
+                    properties:
+                        date_from:
+                            type: string
+                            format: date
+                        date_to:
+                            type: string
+                            format: date
+                        district:
+                            type: string
+                        category:
+                            type: string
+                        contractor_id:
+                            type: string
+                            format: uuid
+                        status:
+                            $ref: "#/components/schemas/TicketStatus"
+                format:
+                    type: string
+                    enum: [json, csv, xlsx]
+                    default: json
+
+        ReportAcceptedResponse:
+            type: object
+            properties:
+                report_id:
+                    type: string
+                    format: uuid
+                status:
+                    type: string
+                    enum: [pending, processing, ready, failed]
+                estimated_ready_at:
+                    type: string
+                    format: date-time
+                message:
+                    type: string
+                    example: "Отчёт формируется. Вы получите уведомление по готовности."
+
+        ReportResponse:
+            type: object
+            properties:
+                report_id:
+                    type: string
+                    format: uuid
+                type:
+                    type: string
+                status:
+                    type: string
+                    enum: [pending, processing, ready, failed]
+                created_at:
+                    type: string
+                    format: date-time
+                ready_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                row_count:
+                    type: integer
+                    nullable: true
+                data:
+                    type: object
+                    nullable: true
+                    description: Данные отчёта (только при status=ready и для небольших выборок)
+                download_url:
+                    type: string
+                    format: uri
+                    nullable: true
+                    description: Ссылка для скачивания файла (TTL 1 час)
+                error_message:
+                    type: string
+                    nullable: true
+
+        UserResponse:
+            type: object
+            properties:
+                user_id:
+                    type: string
+                    format: uuid
+                name:
+                    type: string
+                email:
+                    type: string
+                    format: email
+                role:
+                    $ref: "#/components/schemas/UserRole"
+                is_active:
+                    type: boolean
+                created_at:
+                    type: string
+                    format: date-time
+
+        UserListResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/UserResponse"
+                total:
+                    type: integer
+
+        AuditLogEntry:
+            type: object
+            properties:
+                log_id:
+                    type: string
+                    format: uuid
+                user_id:
+                    type: string
+                    format: uuid
+                user_role:
+                    $ref: "#/components/schemas/UserRole"
+                action:
+                    type: string
+                    description: Тип действия
+                    example: "ticket.status_changed"
+                entity_type:
+                    type: string
+                    example: "ticket"
+                entity_id:
+                    type: string
+                    format: uuid
+                ip_address:
+                    type: string
+                    example: "192.168.1.1"
+                details:
+                    type: object
+                    description: Дополнительные данные о действии
+                occurred_at:
+                    type: string
+                    format: date-time
+
+        AuditLogResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/AuditLogEntry"
+                total:
+                    type: integer
+
+        ErrorResponse:
+            type: object
+            required: [error_code, message]
+            properties:
+                error_code:
+                    type: string
+                    description: Машиночитаемый код ошибки
+                    example: "VALIDATION_ERROR"
+                message:
+                    type: string
+                    description: Описание ошибки для разработчика
+                    example: "Поле 'description' обязательно"
+                details:
+                    type: object
+                    nullable: true
+                    description: Дополнительные поля ошибки (поле формы, текущий статус и т.п.)
+                request_id:
+                    type: string
+                    description: ID запроса для трассировки в логах
+                    example: "req_7f3a9b2c"
+
+        ValidationErrorResponse:
+            type: object
+            properties:
+                error_code:
+                    type: string
+                    enum: [VALIDATION_ERROR]
+                message:
+                    type: string
+                fields:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            field:
+                                type: string
+                                example: "description"
+                            error:
+                                type: string
+                                example: "Минимальная длина — 10 символов"
+
+    responses:
+        BadRequest:
+            description: Некорректный запрос
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/ErrorResponse"
+                    example:
+                        error_code: BAD_REQUEST
+                        message: "Тело запроса не является валидным JSON"
+
+        Unauthorized:
+            description: Требуется авторизация
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/ErrorResponse"
+                    example:
+                        error_code: UNAUTHORIZED
+                        message: "Токен авторизации отсутствует или недействителен"
+
+        Forbidden:
+            description: Доступ запрещён
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/ErrorResponse"
+                    example:
+                        error_code: FORBIDDEN
+                        message: "Недостаточно прав для выполнения операции"
+
+        NotFound:
+            description: Ресурс не найден
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/ErrorResponse"
+                    example:
+                        error_code: NOT_FOUND
+                        message: "Обращение с указанным ID не найдено"
+
+        Conflict:
+            description: Конфликт данных (например, версия устарела)
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/ErrorResponse"
+                    example:
+                        error_code: CONFLICT
+                        message: "Обращение было изменено другим пользователем. Обновите данные."
+
+        ValidationError:
+            description: Ошибка валидации полей
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/ValidationErrorResponse"
+
+        TooManyRequests:
+            description: Превышен лимит запросов
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/ErrorResponse"
+                    example:
+                        error_code: RATE_LIMIT_EXCEEDED
+                        message: "Превышен лимит запросов. Повторите через 60 секунд."
+            headers:
+                Retry-After:
+                    schema:
+                        type: integer
+                    description: Время в секундах до следующего допустимого запроса
+
+        ServiceUnavailable:
+            description: Сервис временно недоступен (деградация)
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/ErrorResponse"
+                    example:
+                        error_code: SERVICE_UNAVAILABLE
+                        message: "Хранилище файлов временно недоступно. Обращение сохранено без фото."
+            headers:
+                Retry-After:
+                    schema:
+                        type: integer
+                    description: Рекомендуемое время ожидания в секундах
+
+    securitySchemes:
+        BearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+            description: JWT-токен, полученный от сервиса авторизации (Госуслуги / SSO)
+
+security:
+    - BearerAuth: []
