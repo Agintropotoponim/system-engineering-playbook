@@ -7,6 +7,7 @@
     - [SR-SYS — System Requirements](./sr-sys.md)
     - [NFR - Нефункциональные требования](./nfr.md)
 - [Архитектура](./architecture.md)
+- [Риски](./risks.md)
 - [Лаб](./labs.md)
 - [Конфигурация проекта](./md.md)
 - [Пример использования Drawio](./drawio.md)
