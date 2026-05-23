@@ -247,6 +247,7 @@
 <pre><code>Authorization: Bearer &lt;JWT&gt;
 Idempotency-Key: 550e8400-e29b-41d4-a716-446655440000
 Content-Type: application/json
+API-Version: v1
 </code></pre>
 <p><strong>Успешный ответ <code>201 Created</code></strong></p>
 <pre><code class="language-json">{
@@ -332,11 +333,14 @@ Content-Type: application/json
 }
 </code></pre>
 <p><strong>Ответ для большой выборки <code>202 Accepted</code></strong> (&gt; 100 000 записей)</p>
+<p><strong>Ответ для небольшой выборки <code>200 OK</code></strong> (&lt; 100 000 записей)</p>
+<p>Отчёт возвращается синхронно в теле ответа; поле <code>data</code> содержит результат,
+<code>status</code> = <code>ready</code>.</p>
 <pre><code class="language-json">{
     "report_id": "d4e5f6a7-b8c9-0123-def0-234567890123",
-    "status": "pending",
-    "estimated_ready_at": "2025-05-21T10:17:00Z",
-    "message": "Отчёт формируется. Вы получите уведомление по готовности."
+    "status": "ready",
+    "data": { ... },
+    "row_count": 4200
 }
 </code></pre>
 <hr />
@@ -370,7 +374,7 @@ Content-Type: application/json
    │  closed  │  ◄── закрыто
    └──────────┘
 
-  any (кроме closed) ──► rejected  (только оператор, comment обязателен)
+  new | assigned | in_progress ──► rejected  (только оператор, comment обязателен)
 </code></pre>
 <hr />
 <h3 id="Идемпотентность-и-ретраи"><a class="header" href="#Идемпотентность-и-ретраи">Идемпотентность и ретраи</a></h3>
@@ -386,6 +390,7 @@ Content-Type: application/json
 <tr><td><code>429 Too Many Requests</code></td><td>Ждать <code>Retry-After</code> секунд</td></tr>
 <tr><td><code>503 Service Unavailable</code></td><td>Ждать <code>Retry-After</code>, затем показать fallback-интерфейс</td></tr>
 <tr><td><code>4xx</code> (кроме 429)</td><td>Не ретраить — ошибка на стороне клиента</td></tr>
+<tr><td><code>409 POSSIBLE_DUPLICATE</code></td><td>Не ретраить — показать пользователю выбор (view_existing / create_anyway)</td></tr>
 </tbody></table>
 </div>
 <hr />

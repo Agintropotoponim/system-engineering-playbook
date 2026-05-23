@@ -191,7 +191,7 @@ paths:
                 - `in_progress` → `completed` | `returned`
                 - `completed` → `closed`
                 - `returned` → `assigned`
-                - `new` | `assigned` → `rejected` (только оператор)
+                - `new` | `assigned` | `in_progress` → `rejected` (только оператор)
             operationId: updateTicketStatus
             parameters:
                 - $ref: "#/components/parameters/TicketId"
@@ -437,6 +437,7 @@ paths:
                   schema:
                       type: string
                       format: uuid
+                - $ref: "#/components/parameters/IdempotencyKey"
             responses:
                 "204":
                     description: Уведомление отмечено как прочитанное
